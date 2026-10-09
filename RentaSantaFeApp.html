@@ -1110,9 +1110,8 @@
                 display: none;
             }
 
-            /* Show install button if available */
+            /* Install button only shows when browser triggers installability */
             .header-actions #btnInstallPwa {
-                display: inline-flex !important;
                 width: 100%;
                 justify-content: center;
             }
@@ -2484,11 +2483,30 @@ async function manualSyncToSheets() {
 
 // Control de instalación PWA
 let deferredPrompt = null;
+
+function checkIsInstalled() {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const btn = document.getElementById('btnInstallPwa');
+    if (isStandalone && btn) {
+        btn.style.display = 'none';
+        return true;
+    }
+    return false;
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
+    if (checkIsInstalled()) return;
     e.preventDefault();
     deferredPrompt = e;
     const btn = document.getElementById('btnInstallPwa');
     if (btn) btn.style.display = 'inline-flex';
+});
+
+window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    const btn = document.getElementById('btnInstallPwa');
+    if (btn) btn.style.display = 'none';
+    showToast("¡App instalada con éxito!", "📲");
 });
 
 function triggerInstallPrompt() {
@@ -2497,10 +2515,10 @@ function triggerInstallPrompt() {
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
                 showToast("¡Instalando Renta Santa Fe!", "📲");
+                const btn = document.getElementById('btnInstallPwa');
+                if (btn) btn.style.display = 'none';
             }
             deferredPrompt = null;
-            const btn = document.getElementById('btnInstallPwa');
-            if (btn) btn.style.display = 'none';
         });
     } else {
         alert("Para instalar en tu teléfono:\n\n1. En Chrome: Menú ⋮ > 'Instalar aplicación' o 'Agregar a la pantalla principal'.\n2. En iPhone: Compartir > 'Agregar al inicio'.");
@@ -2511,6 +2529,7 @@ function triggerInstallPrompt() {
 document.addEventListener("DOMContentLoaded", () => {
     initDatabase();
     updateSyncStatusUI();
+    checkIsInstalled();
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')

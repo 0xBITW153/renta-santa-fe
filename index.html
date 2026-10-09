@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de Cuenta Interactivo - Renta Santa Fe</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#090d16">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Renta Santa Fe">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: rgba(18, 26, 43, 0.75);
+            --bg-card-hover: rgba(26, 38, 63, 0.9);
+            --border-glow: rgba(0, 242, 254, 0.25);
+            --neon-cyan: #00f2fe;
+            --neon-blue: #4facfe;
+            --neon-purple: #7f00ff;
+            --neon-pink: #ff007f;
+            --neon-green: #00ff88;
+            --neon-amber: #ffab00;
+            --text-main: #f0f4f8;
+            --text-muted: #8a99ad;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(127, 0, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(0, 242, 254, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(255, 0, 127, 0.05) 0%, transparent 60%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1.5rem 4rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: var(--glass-border);
+            position: relative;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 220px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), transparent);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .brand h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 30%, var(--neon-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .brand p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.3rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .rent-info-badge {
+            background: rgba(18, 26, 43, 0.85);
+            border: 1px solid var(--neon-purple);
+            box-shadow: 0 0 15px rgba(127, 0, 255, 0.25);
+            padding: 0.6rem 1.2rem;
+            border-radius: 12px;
+            text-align: right;
+            backdrop-filter: blur(10px);
+        }
+
+        .rent-info-badge .title {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .rent-info-badge .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+        }
+
+        /* Buttons & Toolbar */
+        .btn {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.88rem;
+            padding: 0.65rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            box-shadow: 0 4px 15px rgba(127, 0, 255, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(127, 0, 255, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b09b, var(--neon-green));
+            color: #032b1d;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.25);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+            filter: brightness(1.05);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger-outline {
+            background: rgba(255, 0, 127, 0.05);
+            color: #ff75a0;
+            border: 1px solid rgba(255, 0, 127, 0.25);
+        }
+
+        .btn-danger-outline:hover {
+            background: rgba(255, 0, 127, 0.15);
+            border-color: var(--neon-pink);
+            color: #fff;
+        }
+
+        /* Rules Banner */
+        .rules-card {
+            background: linear-gradient(135deg, rgba(127, 0, 255, 0.12), rgba(0, 242, 254, 0.06));
+            border: 1px solid rgba(127, 0, 255, 0.3);
+            border-radius: 16px;
+            padding: 1.1rem 1.4rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .rules-card h3 {
+            font-size: 0.95rem;
+            color: var(--neon-cyan);
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .rules-list {
+            list-style: none;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .rules-list li::before {
+            content: '▹ ';
+            color: var(--neon-pink);
+        }
+
+        .storage-status {
+            font-size: 0.78rem;
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            color: var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.2rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            background: var(--bg-card-hover);
+            border-color: rgba(0, 242, 254, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 242, 254, 0.15);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-color, var(--neon-cyan));
+            box-shadow: 0 0 12px var(--accent-color, var(--neon-cyan));
+        }
+
+        .kpi-title {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 0.6rem;
+        }
+
+        .kpi-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.4rem;
+        }
+
+        .kpi-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* Main Dashboard Sections */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.8rem;
+        }
+
+        @media (max-width: 1080px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: var(--glass-border);
+            border-radius: 20px;
+            padding: 1.8rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 1.8rem;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .panel-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #fff;
+        }
+
+        .panel-title span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        /* Table Design */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        td {
+            padding: 0.9rem 1rem;
+            font-size: 0.92rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #d1d5db;
+        }
+
+        tr:hover td {
+            background: rgba(0, 242, 254, 0.03);
+            color: #fff;
+        }
+
+        .amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .amount.negative {
+            color: var(--neon-green);
+        }
+
+        .amount.positive {
+            color: #ffffff;
+        }
+
+        .amount.highlight {
+            color: var(--neon-pink);
+            font-weight: 700;
+        }
+
+        /* Badges & Pills */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-penalty {
+            background: rgba(255, 0, 127, 0.15);
+            color: var(--neon-pink);
+            border: 1px solid rgba(255, 0, 127, 0.3);
+        }
+
+        .badge-payment {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .badge-discount {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+
+        .badge-contract {
+            background: rgba(127, 0, 255, 0.15);
+            color: #b57cff;
+            border: 1px solid rgba(127, 0, 255, 0.3);
+        }
+
+        .badge-regular {
+            background: rgba(79, 172, 254, 0.15);
+            color: var(--neon-blue);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+        }
+
+        /* Maintenance Items Cards */
+        .maint-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.9rem 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 0.7rem;
+            transition: all 0.2s ease;
+        }
+
+        .maint-item:hover {
+            border-color: rgba(0, 242, 254, 0.3);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .maint-info .name {
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: #fff;
+        }
+
+        .maint-info .tag {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .maint-cost {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .btn-delete-mini {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-delete-mini:hover {
+            color: var(--neon-pink);
+            background: rgba(255, 0, 127, 0.15);
+        }
+
+        /* Summary Footer Balance */
+        .balance-summary-box {
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.15), rgba(127, 0, 255, 0.2));
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.25);
+            border-radius: 18px;
+            padding: 1.6rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-summary-box .label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ffd0e5;
+        }
+
+        .balance-summary-box .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 0 15px var(--neon-pink);
+            margin: 0.4rem 0;
+        }
+
+        .balance-summary-box .note {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* Forms in Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(4, 7, 13, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: #111827;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 242, 254, 0.15);
+            overflow: hidden;
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.3rem 1.6rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .modal-header h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        .modal-body {
+            padding: 1.6rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-radio-group {
+            display: flex;
+            gap: 0.6rem;
+            margin-top: 0.3rem;
+        }
+
+        .form-radio-label {
+            flex: 1;
+            padding: 0.6rem 0.8rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .form-radio-label.active {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 242, 254, 0.12);
+            color: var(--neon-cyan);
+            font-weight: 600;
+        }
+
+        .modal-footer {
+            padding: 1.2rem 1.6rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.8rem;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #1e293b;
+            color: #fff;
+            padding: 0.9rem 1.4rem;
+            border-radius: 12px;
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 15px rgba(0,242,254,0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            z-index: 2000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            padding: 0.35rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: rgba(0, 242, 254, 0.15);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="brand">
+            <h1>🏛️ RENTA SANTA FE</h1>
+            <p>Sistema Interactivo de Registro de Pagos, Recargos y Mantenimiento</p>
+        </div>
+        
+        <div class="header-actions">
+            <div class="rent-info-badge">
+                <div class="title">Renta Mensual Base</div>
+                <div class="value">$8,500 MXN</div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="openPaymentModal()">
+                <span>➕</span> Registrar Abono
+            </button>
+            <button class="btn btn-outline" onclick="openChargeModal()">
+                <span>📋</span> Agregar Cargo / Renta
+            </button>
+            <button class="btn btn-outline" onclick="openSyncModal()" title="Sincronizar con Google Sheets">
+                <span>🔄</span> <span id="syncBtnLabel">Google Sheets</span>
+            </button>
+            <button class="btn btn-outline" onclick="openExportModal()" title="Copia de seguridad y exportación">
+                <span>💾</span> Respaldo
+            </button>
+        </div>
+    </header>
+
+    <!-- Rules Banner & Storage Status -->
+    <div class="rules-card">
+        <div>
+            <h3>⚡ Condiciones y Reglas de Pago</h3>
+            <ul class="rules-list">
+                <li><strong>Periodo Estándar:</strong> Pago dentro de los primeros 10 días de cada mes.</li>
+                <li><strong>Recargo por Atraso:</strong> +10% sobre la renta base ($850 MXN) si pasa del día 10 = <strong>$9,350 MXN</strong> mensual.</li>
+            </ul>
+        </div>
+        <div class="storage-status" id="storageStatusBadge" onclick="openSyncModal()" style="cursor: pointer;" title="Configurar conexión">
+            <span id="storageIcon">🟢</span> <strong id="storageStatusText">Modo Local Activo</strong> (Toca para conectar a Google Sheets)
+        </div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid">
+        <div class="kpi-card" style="--accent-color: var(--neon-cyan);">
+            <div class="kpi-title" id="kpiCargosTitle">Total Cargos por Renta</div>
+            <div class="kpi-value" id="kpiTotalCargos">$0</div>
+            <div class="kpi-sub" id="kpiCargosSub">Calculando...</div>
+        </div>
+
+        <div class="kpi-card" style="--accent-color: var(--neon-green);">
+            <div class="kpi-title">Total Abonos Realizados</div>
+            <div class="kpi-value" id="kpiTotalAbonos" style="color: var(--neon-green);">$0</div>
+            <div class="kpi-sub" id="kpiAbonosSub">0 abonos registrados</div>
+        </div>
+
+        <div class="kpi-card" style="--accent-color: var(--neon-purple);">
+            <div class="kpi-title">Mantenimiento + Contrato</div>
+            <div class="kpi-value" id="kpiMaintContrato">$0</div>
+            <div class="kpi-sub" id="kpiMaintSub">Contrato vs Descuentos</div>
+        </div>
+
+        <div class="kpi-card" style="--accent-color: var(--neon-pink);">
+            <div class="kpi-title">Saldo Pendiente Actual</div>
+            <div class="kpi-value" id="kpiSaldoPendiente" style="color: var(--neon-pink); text-shadow: 0 0 10px rgba(255,0,127,0.4);">$0</div>
+            <div class="kpi-sub" id="kpiSaldoSub">Al corte actual</div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+        <!-- Main Ledger Table -->
+        <div class="left-column">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span></span> Historial Dinámico de Transacciones
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="exportLedgerCSV()">
+                            📥 Exportar Excel (CSV)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-tabs">
+                    <button class="filter-btn active" onclick="setFilter('all', this)">Todos</button>
+                    <button class="filter-btn" onclick="setFilter('cargo', this)">Sólo Cargos/Rentas</button>
+                    <button class="filter-btn" onclick="setFilter('abono', this)">Sólo Abonos</button>
+                    <button class="filter-btn" onclick="setFilter('mantto', this)">Mantenimiento/Otros</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th>Fecha / Periodo</th>
+                                <th>Concepto</th>
+                                <th>Tipo</th>
+                                <th style="text-align: right;">Monto</th>
+                                <th style="text-align: right;">Saldo Acumulado</th>
+                                <th style="text-align: center; width: 60px;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsBody">
+                            <!-- Injected by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side Widgets -->
+        <div class="right-column">
+            <!-- Maintenance Breakdown -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span></span> Descuentos por Mantenimiento</div>
+                    <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="openAddMaintModal()">
+                        ➕ Añadir
+                    </button>
+                </div>
+                <div id="maintenanceItemsList">
+                    <!-- Injected by JS -->
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.8rem 0; border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 0.5rem;">
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Total Descontado:</span>
+                    <span id="totalMaintDiscount" style="font-family: 'JetBrains Mono'; font-weight: 700; color: var(--neon-cyan);">$0 MXN</span>
+                </div>
+            </div>
+
+            <!-- Total Balance Card -->
+            <div class="balance-summary-box">
+                <div class="label">Saldo Total a Pagar</div>
+                <div class="value" id="summaryBalanceBig">$0</div>
+                <div class="note" id="summaryBalanceNote">Cargando cuentas...</div>
+            </div>
+
+            <!-- Quick Add Period Rent Card -->
+            <div class="panel" style="margin-top: 1.8rem; background: rgba(18, 26, 43, 0.55);">
+                <div class="panel-header">
+                    <div class="panel-title" style="font-size: 0.95rem;"><span></span> Generador Rápido de Renta</div>
+                </div>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    Genera automáticamente el cargo del siguiente mes con o sin recargo del 10%.
+                </p>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn btn-outline" style="flex: 1; font-size: 0.8rem;" onclick="quickAddNextMonth(false)">
+                        Renta Normal ($8,500)
+                    </button>
+                    <button class="btn btn-primary" style="flex: 1; font-size: 0.8rem;" onclick="quickAddNextMonth(true)">
+                        Con Recargo ($9,350)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Database Tools Panel -->
+            <div class="panel" style="margin-top: 1.8rem; padding: 1.2rem; background: rgba(14, 20, 33, 0.45);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Administrar Datos:</span>
+                    <button class="btn btn-danger-outline" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;" onclick="confirmResetInitialData()">
+                        Restablecer Original
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 1: Registrar Abono -->
+<div class="modal-overlay" id="modalPayment">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><span>💵</span> Registrar Nuevo Abono</h2>
+            <button class="modal-close" onclick="closeModal('modalPayment')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="formPayment" onsubmit="handleSavePayment(event)">
+                <div class="form-group">
+                    <label>Fecha del Abono</label>
+                    <input type="date" id="payDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre / Folio del Abono (Ej: ABONO 7)</label>
+                    <input type="text" id="payPeriod" class="form-control" placeholder="Ej: ABONO 7" required>
+                </div>
+                <div class="form-group">
+                    <label>Concepto / Detalle (Opcional)</label>
+                    <input type="text" id="payConcept" class="form-control" placeholder="Pago registrado en cuenta / Transferencia" value="Pago registrado en cuenta">
+                </div>
+                <div class="form-group">
+                    <label>Monto del Abono ($ MXN)</label>
+                    <input type="number" id="payAmount" class="form-control" placeholder="Ej: 8500" step="any" min="1" required style="font-family: 'JetBrains Mono'; font-size: 1.1rem; color: var(--neon-green);">
+                </div>
+                <div class="modal-footer" style="padding: 1rem 0 0 0; margin-top: 1rem; border-top: none;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalPayment')">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar Abono</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Agregar Cargo / Renta -->
+<div class="modal-overlay" id="modalCharge">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><span>📋</span> Registrar Cargo o Renta</h2>
+            <button class="modal-close" onclick="closeModal('modalCharge')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="formCharge" onsubmit="handleSaveCharge(event)">
+                <div class="form-group">
+                    <label>Mes / Periodo</label>
+                    <input type="text" id="chargePeriod" class="form-control" placeholder="Ej: Septiembre 2026" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Cargo</label>
+                    <select id="chargeType" class="form-control" onchange="updateChargeDefaults()">
+                        <option value="renta_recargo">Renta con Recargo 10% ($9,350)</option>
+                        <option value="renta_normal">Renta Normal a Tiempo ($8,500)</option>
+                        <option value="contrato">Cargo por Contrato</option>
+                        <option value="otro">Otro Cargo Adicional</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Concepto Descriptivo</label>
+                    <input type="text" id="chargeConcept" class="form-control" placeholder="Renta base ($8,500) + Recargo ($850)" required>
+                </div>
+                <div class="form-group">
+                    <label>Monto del Cargo ($ MXN)</label>
+                    <input type="number" id="chargeAmount" class="form-control" value="9350" step="any" min="1" required style="font-family: 'JetBrains Mono'; font-size: 1.1rem; color: #fff;">
+                </div>
+                <div class="modal-footer" style="padding: 1rem 0 0 0; margin-top: 1rem; border-top: none;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalCharge')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cargo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 3: Agregar Mantenimiento -->
+<div class="modal-overlay" id="modalMaint">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><span>🔧</span> Agregar Descuento de Mantenimiento</h2>
+            <button class="modal-close" onclick="closeModal('modalMaint')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="formMaint" onsubmit="handleSaveMaint(event)">
+                <div class="form-group">
+                    <label>Descripción del Trabajo / Reparación</label>
+                    <input type="text" id="maintName" class="form-control" placeholder="Ej: Pintura Fachada, Reparación Baño" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoría / Etiqueta</label>
+                    <input type="text" id="maintTag" class="form-control" placeholder="Reparación / Mantenimiento" value="Reparación / Mantenimiento">
+                </div>
+                <div class="form-group">
+                    <label>Costo del Mantenimiento ($ MXN)</label>
+                    <input type="number" id="maintCost" class="form-control" placeholder="Ej: 1500" step="any" min="1" required style="font-family: 'JetBrains Mono'; font-size: 1.1rem; color: var(--neon-cyan);">
+                </div>
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    ℹ️ Esto sumará al desglose de mantenimiento y actualizará la deducción en el estado de cuenta.
+                </p>
+                <div class="modal-footer" style="padding: 1rem 0 0 0; margin-top: 1rem; border-top: none;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalMaint')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Agregar Descuento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 4: Exportar / Importar Base de Datos -->
+<div class="modal-overlay" id="modalExport">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><span>💾</span> Copia de Seguridad y Datos</h2>
+            <button class="modal-close" onclick="closeModal('modalExport')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">
+                Tus datos se guardan de forma permanente e instantánea en este navegador web. Puedes guardar una copia externa en archivo para llevarla a otra computadora o como respaldo.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                <button class="btn btn-primary" onclick="exportBackupJSON()" style="justify-content: center;">
+                    📥 Descargar Archivo de Respaldo (.json)
+                </button>
+                <button class="btn btn-outline" onclick="exportLedgerCSV()" style="justify-content: center;">
+                    📊 Descargar Reporte en Excel (.csv)
+                </button>
+                
+                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 0.5rem 0;">
+                
+                <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">
+                    RESTAURAR DESDE ARCHIVO:
+                </label>
+                <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="handleImportJSON(event)">
+                <button class="btn btn-outline" onclick="document.getElementById('importFileInput').click()" style="justify-content: center;">
+                    📤 Cargar Archivo de Respaldo (.json)
+                </button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modalExport')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 5: Conexión con Google Sheets -->
+<div class="modal-overlay" id="modalSync">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><span>☁️</span> Sincronizar con Google Sheets</h2>
+            <button class="modal-close" onclick="closeModal('modalSync')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5;">
+                Conecta tu Google Sheets para que las cuentas se sincronicen entre tu teléfono y tu computadora en tiempo real.
+            </p>
+            <div class="form-group">
+                <label>URL de Apps Script (Web App URL)</label>
+                <input type="url" id="sheetsApiUrl" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
+            </div>
+            <div style="display: flex; gap: 0.6rem; margin-top: 0.8rem;">
+                <button type="button" class="btn btn-primary" onclick="saveAndTestSheetsConnection()" style="flex: 1;">
+                    💾 Guardar y Conectar
+                </button>
+                <button type="button" class="btn btn-outline" onclick="manualSyncFromSheets()" style="flex: 1;">
+                    📥 Descargar de Sheets
+                </button>
+            </div>
+            <div style="margin-top: 0.8rem;">
+                <button type="button" class="btn btn-success" onclick="manualSyncToSheets()" style="width: 100%;">
+                    📤 Subir mis datos actuales a Google Sheets
+                </button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modalSync')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Toast -->
+<div class="toast" id="toastNotification">
+    <span id="toastIcon">✅</span>
+    <span id="toastMessage">Operación realizada con éxito</span>
+</div>
+
+<script>
+// --- DATOS INICIALES POR DEFECTO ---
+const INITIAL_TRANSACTIONS = [
+    { id: "tx_1", date: "2025-11-01", period: "Noviembre 2025", concept: "Renta base ($8,500) + Recargo ($850)", type: "cargo_recargo", amount: 9350 },
+    { id: "tx_2", date: "2025-12-01", period: "Diciembre 2025", concept: "Renta base ($8,500) + Recargo ($850)", type: "cargo_recargo", amount: 9350 },
+    { id: "tx_3", date: "2026-01-01", period: "Enero 2026", concept: "Renta base ($8,500) + Recargo ($850)", type: "cargo_recargo", amount: 9350 },
+    { id: "tx_4", date: "2026-01-15", period: "Mantenimiento", concept: "Descuento por reparaciones", type: "descuento_mantto", amount: -7299 },
+    { id: "tx_5", date: "2026-01-20", period: "Contrato", concept: "Cargo por contrato de arrendamiento", type: "cargo_contrato", amount: 8500 },
+    { id: "tx_6", date: "2026-01-25", period: "ABONO 1", concept: "Pago registrado en cuenta", type: "abono", amount: -18000 },
+    { id: "tx_7", date: "2026-02-01", period: "Febrero 2026", concept: "Renta base ($8,500) + Recargo ($850)", type: "cargo_recargo", amount: 9350 },
+    { id: "tx_8", date: "2026-03-01", period: "Marzo 2026", concept: "Renta base ($8,500) + Recargo ($850)", type: "cargo_recargo", amount: 9350 },
+    { id: "tx_9", date: "2026-03-13", period: "ABONO 2 (13/Mar/26)", concept: "Pago registrado en cuenta", type: "abono", amount: -18000 },
+    { id: "tx_10", date: "2026-04-01", period: "Abril 2026", concept: "Renta base ($8,500) + Recargo ($850)", type: "cargo_recargo", amount: 9350 },
+    { id: "tx_11", date: "2026-05-11", period: "ABONO 3 (11/May/26)", concept: "Pago registrado en cuenta", type: "abono", amount: -20000 },
+    { id: "tx_12", date: "2026-05-01", period: "Mayo 2026", concept: "Renta base ($8,500) + Recargo ($850)", type: "cargo_recargo", amount: 9350 },
+    { id: "tx_13", date: "2026-06-01", period: "Junio 2026", concept: "Renta base ($8,500) + Recargo ($850)", type: "cargo_recargo", amount: 9350 },
+    { id: "tx_14", date: "2026-07-01", period: "Julio 2026", concept: "Renta base ($8,500) + Recargo ($850)", type: "cargo_recargo", amount: 9350 },
+    { id: "tx_15", date: "2026-08-01", period: "Agosto 2026", concept: "Renta base ($8,500) + Recargo ($850)", type: "cargo_recargo", amount: 9350 },
+    { id: "tx_16", date: "2026-07-28", period: "ABONO 4 (28/Jul/26)", concept: "Pago registrado en cuenta", type: "abono", amount: -14000 },
+    { id: "tx_17", date: "2026-08-10", period: "ABONO 5 (10/Ago/26)", concept: "Pago registrado en cuenta", type: "abono", amount: -5000 },
+    { id: "tx_18", date: "2026-08-10", period: "ABONO 6 (10/Ago/26)", concept: "Pago registrado en cuenta", type: "abono", amount: -9000 }
+];
+
+const INITIAL_MAINTENANCE = [
+    { id: "m_1", name: "Puerta Dañada", tag: "Reparación / Mantenimiento", cost: 3300 },
+    { id: "m_2", name: "Aire Acondicionado", tag: "Reparación / Servicio", cost: 3999 }
+];
+
+// --- STORAGE KEYS ---
+const STORAGE_KEY_TX = "santa_fe_transactions_v1";
+const STORAGE_KEY_MAINT = "santa_fe_maintenance_v1";
+
+let transactions = [];
+let maintenanceItems = [];
+let currentFilter = "all";
+
+// Inicialización de la Base de Datos Local
+function initDatabase() {
+    try {
+        const savedTx = localStorage.getItem(STORAGE_KEY_TX);
+        const savedMaint = localStorage.getItem(STORAGE_KEY_MAINT);
+
+        if (savedTx) {
+            transactions = JSON.parse(savedTx);
+        } else {
+            transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
+            saveTransactions();
+        }
+
+        if (savedMaint) {
+            maintenanceItems = JSON.parse(savedMaint);
+        } else {
+            maintenanceItems = JSON.parse(JSON.stringify(INITIAL_MAINTENANCE));
+            saveMaintenance();
+        }
+    } catch (e) {
+        console.error("Error al cargar localStorage, usando datos base en memoria", e);
+        transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
+        maintenanceItems = JSON.parse(JSON.stringify(INITIAL_MAINTENANCE));
+    }
+
+    renderAll();
+}
+
+function saveTransactions() {
+    try {
+        localStorage.setItem(STORAGE_KEY_TX, JSON.stringify(transactions));
+    } catch(e) {
+        console.error("Error al guardar transacciones", e);
+    }
+}
+
+function saveMaintenance() {
+    try {
+        localStorage.setItem(STORAGE_KEY_MAINT, JSON.stringify(maintenanceItems));
+    } catch(e) {
+        console.error("Error al guardar mantenimiento", e);
+    }
+}
+
+// Formateador de moneda
+function formatMoney(amount, showSign = false) {
+    const formatted = Math.abs(amount).toLocaleString('es-MX', {
+        style: 'currency',
+        currency: 'MXN',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+    if (showSign) {
+        return amount >= 0 ? `+${formatted}` : `-${formatted}`;
+    }
+    return formatted;
+}
+
+// Helpers de insignias (badges)
+function getBadgeHtml(type) {
+    switch (type) {
+        case 'cargo_recargo':
+            return '<span class="badge badge-penalty">Atraso 10%</span>';
+        case 'cargo_normal':
+            return '<span class="badge badge-regular">Renta Puntual</span>';
+        case 'cargo_contrato':
+            return '<span class="badge badge-contract">Cargo Contrato</span>';
+        case 'descuento_mantto':
+            return '<span class="badge badge-discount">Abono Mantto</span>';
+        case 'abono':
+            return '<span class="badge badge-payment">Abono Pago</span>';
+        default:
+            return '<span class="badge badge-regular">Movimiento</span>';
+    }
+}
+
+// Renderizado de la tabla principal y cálculos
+function renderLedger() {
+    const tbody = document.getElementById("transactionsBody");
+    tbody.innerHTML = "";
+
+    let runningBalance = 0;
+    let totalCargosRenta = 0;
+    let countCargosRenta = 0;
+    let totalAbonos = 0;
+    let countAbonos = 0;
+    let contratoAmount = 0;
+    let manttoDescuento = 0;
+
+    // Calculamos acumulados en orden cronológico / lista
+    const calculatedRows = transactions.map((tx) => {
+        runningBalance += tx.amount;
+
+        if (tx.type === 'cargo_recargo' || tx.type === 'cargo_normal') {
+            totalCargosRenta += tx.amount;
+            countCargosRenta++;
+        } else if (tx.type === 'abono') {
+            totalAbonos += Math.abs(tx.amount);
+            countAbonos++;
+        } else if (tx.type === 'cargo_contrato') {
+            contratoAmount += tx.amount;
+        } else if (tx.type === 'descuento_mantto') {
+            manttoDescuento += Math.abs(tx.amount);
+        }
+
+        return {
+            ...tx,
+            accumulated: runningBalance
+        };
+    });
+
+    // Filtros visuales
+    const filteredRows = calculatedRows.filter(row => {
+        if (currentFilter === 'all') return true;
+        if (currentFilter === 'cargo') return row.type.startsWith('cargo_');
+        if (currentFilter === 'abono') return row.type === 'abono';
+        if (currentFilter === 'mantto') return row.type === 'descuento_mantto' || row.type === 'cargo_contrato';
+        return true;
+    });
+
+    filteredRows.forEach((row) => {
+        const tr = document.createElement("tr");
+        if (row.type === 'abono') {
+            tr.style.background = "rgba(0, 255, 136, 0.04)";
+        }
+
+        const isAbono = row.amount < 0;
+        const amountClass = isAbono ? 'amount negative' : 'amount positive';
+        const formattedAmount = formatMoney(row.amount, true);
+        const formattedAcc = formatMoney(row.accumulated);
+
+        tr.innerHTML = `
+            <td><strong>${row.period}</strong></td>
+            <td>${row.concept}</td>
+            <td>${getBadgeHtml(row.type)}</td>
+            <td class="${amountClass}" style="text-align: right;">${formattedAmount}</td>
+            <td class="amount ${row.accumulated > 0 ? '' : 'negative'}" style="text-align: right;">${formattedAcc}</td>
+            <td style="text-align: center;">
+                <button class="btn-delete-mini" onclick="deleteTransaction('${row.id}')" title="Eliminar registro">✕</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Actualizar KPIs
+    document.getElementById("kpiTotalCargos").innerText = formatMoney(totalCargosRenta);
+    document.getElementById("kpiCargosTitle").innerText = `Total Rentas (${countCargosRenta} Meses)`;
+    document.getElementById("kpiCargosSub").innerText = `Cargos acumulados a la fecha`;
+
+    document.getElementById("kpiTotalAbonos").innerText = formatMoney(totalAbonos);
+    document.getElementById("kpiAbonosSub").innerText = `${countAbonos} pagos registrados`;
+
+    const balanceMaintContrato = contratoAmount - manttoDescuento;
+    document.getElementById("kpiMaintContrato").innerText = (balanceMaintContrato >= 0 ? "+" : "") + formatMoney(balanceMaintContrato);
+    document.getElementById("kpiMaintSub").innerText = `Contrato (${formatMoney(contratoAmount)}) - Mantto (${formatMoney(manttoDescuento)})`;
+
+    document.getElementById("kpiSaldoPendiente").innerText = formatMoney(runningBalance);
+    document.getElementById("kpiSaldoSub").innerText = runningBalance > 0 ? "Saldo por liquidar" : "Cuenta al corriente / a favor";
+
+    // Summary box
+    document.getElementById("summaryBalanceBig").innerText = formatMoney(runningBalance);
+    const lastTx = transactions[transactions.length - 1];
+    const lastDateText = lastTx ? lastTx.period : "Actualizado";
+    document.getElementById("summaryBalanceNote").innerText = `Incluye rentas acumuladas, cargos, recargos y abonos hasta ${lastDateText}.`;
+}
+
+// Renderizado de la lista de mantenimientos
+function renderMaintenance() {
+    const container = document.getElementById("maintenanceItemsList");
+    container.innerHTML = "";
+
+    let totalMaint = 0;
+    maintenanceItems.forEach(item => {
+        totalMaint += Number(item.cost);
+        const itemEl = document.createElement("div");
+        itemEl.className = "maint-item";
+        itemEl.innerHTML = `
+            <div class="maint-info">
+                <div class="name">${item.name}</div>
+                <div class="tag">${item.tag}</div>
+            </div>
+            <div class="maint-cost">
+                ${formatMoney(item.cost)}
+                <button class="btn-delete-mini" onclick="deleteMaintenanceItem('${item.id}')" title="Eliminar ítem">✕</button>
+            </div>
+        `;
+        container.appendChild(itemEl);
+    });
+
+    document.getElementById("totalMaintDiscount").innerText = `${formatMoney(totalMaint)} MXN`;
+}
+
+function renderAll() {
+    renderLedger();
+    renderMaintenance();
+}
+
+// Filtros de tabla
+function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderLedger();
+}
+
+// --- ACCIONES Y MODALES ---
+function openPaymentModal() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("payDate").value = today;
+    
+    // Contar cuántos abonos existen para sugerir nombre
+    const abonosCount = transactions.filter(t => t.type === 'abono').length + 1;
+    const dateFormatted = new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+    document.getElementById("payPeriod").value = `ABONO ${abonosCount} (${dateFormatted})`;
+    document.getElementById("payAmount").value = "";
+    document.getElementById("modalPayment").classList.add("active");
+    setTimeout(() => document.getElementById("payAmount").focus(), 150);
+}
+
+function openChargeModal() {
+    const nextMonthName = getNextMonthSuggestion();
+    document.getElementById("chargePeriod").value = nextMonthName;
+    updateChargeDefaults();
+    document.getElementById("modalCharge").classList.add("active");
+}
+
+function openAddMaintModal() {
+    document.getElementById("maintName").value = "";
+    document.getElementById("maintCost").value = "";
+    document.getElementById("modalMaint").classList.add("active");
+}
+
+function openExportModal() {
+    document.getElementById("modalExport").classList.add("active");
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove("active");
+}
+
+// Autocompletar texto de cargos según selector
+function updateChargeDefaults() {
+    const type = document.getElementById("chargeType").value;
+    const conceptInput = document.getElementById("chargeConcept");
+    const amountInput = document.getElementById("chargeAmount");
+
+    if (type === "renta_recargo") {
+        conceptInput.value = "Renta base ($8,500) + Recargo ($850)";
+        amountInput.value = 9350;
+    } else if (type === "renta_normal") {
+        conceptInput.value = "Renta mensual base a tiempo";
+        amountInput.value = 8500;
+    } else if (type === "contrato") {
+        conceptInput.value = "Cargo por renovación / póliza contrato";
+        amountInput.value = 8500;
+    } else {
+        conceptInput.value = "Cargo administrativo / servicio";
+    }
+}
+
+// Guardar Abono
+function handleSavePayment(e) {
+    e.preventDefault();
+    const period = document.getElementById("payPeriod").value.trim();
+    const concept = document.getElementById("payConcept").value.trim();
+    const amount = Math.abs(parseFloat(document.getElementById("payAmount").value));
+    const date = document.getElementById("payDate").value;
+
+    if (!amount || isNaN(amount)) {
+        showToast("Ingresa un monto válido", "⚠️");
+        return;
+    }
+
+    const newTx = {
+        id: "tx_" + Date.now(),
+        date: date || new Date().toISOString().split('T')[0],
+        period: period,
+        concept: concept || "Pago registrado en cuenta",
+        type: "abono",
+        amount: -amount // Siempre negativo para descontar
+    };
+
+    transactions.push(newTx);
+    saveTransactions();
+    renderAll();
+    closeModal("modalPayment");
+    showToast(`Abono por ${formatMoney(amount)} registrado con éxito!`, "💵");
+}
+
+// Guardar Cargo
+function handleSaveCharge(e) {
+    e.preventDefault();
+    const period = document.getElementById("chargePeriod").value.trim();
+    const concept = document.getElementById("chargeConcept").value.trim();
+    const typeSelect = document.getElementById("chargeType").value;
+    const amount = Math.abs(parseFloat(document.getElementById("chargeAmount").value));
+
+    if (!amount || isNaN(amount)) {
+        showToast("Ingresa un monto válido", "⚠️");
+        return;
+    }
+
+    let txType = "cargo_recargo";
+    if (typeSelect === "renta_normal") txType = "cargo_normal";
+    else if (typeSelect === "contrato") txType = "cargo_contrato";
+    else if (typeSelect === "otro") txType = "cargo_otro";
+
+    const newTx = {
+        id: "tx_" + Date.now(),
+        date: new Date().toISOString().split('T')[0],
+        period: period,
+        concept: concept,
+        type: txType,
+        amount: amount
+    };
+
+    transactions.push(newTx);
+    saveTransactions();
+    renderAll();
+    closeModal("modalCharge");
+    showToast(`Cargo de ${formatMoney(amount)} agregado correctamente.`, "📋");
+}
+
+// Guardar Mantenimiento
+function handleSaveMaint(e) {
+    e.preventDefault();
+    const name = document.getElementById("maintName").value.trim();
+    const tag = document.getElementById("maintTag").value.trim() || "Reparación / Mantenimiento";
+    const cost = Math.abs(parseFloat(document.getElementById("maintCost").value));
+
+    if (!cost || isNaN(cost)) {
+        showToast("Ingresa un costo válido", "⚠️");
+        return;
+    }
+
+    // Agregar al widget de mantenimiento
+    const newMaint = {
+        id: "m_" + Date.now(),
+        name: name,
+        tag: tag,
+        cost: cost
+    };
+    maintenanceItems.push(newMaint);
+    saveMaintenance();
+
+    // Actualizar o crear registro en la tabla de transacciones de mantenimiento
+    let maintTx = transactions.find(t => t.type === 'descuento_mantto');
+    const totalAllMaint = maintenanceItems.reduce((acc, curr) => acc + Number(curr.cost), 0);
+
+    if (maintTx) {
+        maintTx.amount = -totalAllMaint;
+        maintTx.concept = `Descuento por reparaciones (${maintenanceItems.length} conceptos)`;
+    } else {
+        transactions.push({
+            id: "tx_" + Date.now(),
+            date: new Date().toISOString().split('T')[0],
+            period: "Mantenimiento",
+            concept: `Descuento por reparaciones`,
+            type: "descuento_mantto",
+            amount: -totalAllMaint
+        });
+    }
+
+    saveTransactions();
+    renderAll();
+    closeModal("modalMaint");
+    showToast(`Mantenimiento por ${formatMoney(cost)} añadido y descontado.`, "🔧");
+}
+
+// Botón rápido para mes siguiente
+function quickAddNextMonth(withPenalty) {
+    const nextMonth = getNextMonthSuggestion();
+    const amount = withPenalty ? 9350 : 8500;
+    const concept = withPenalty ? "Renta base ($8,500) + Recargo ($850)" : "Renta mensual base a tiempo";
+    const type = withPenalty ? "cargo_recargo" : "cargo_normal";
+
+    const newTx = {
+        id: "tx_" + Date.now(),
+        date: new Date().toISOString().split('T')[0],
+        period: nextMonth,
+        concept: concept,
+        type: type,
+        amount: amount
+    };
+
+    transactions.push(newTx);
+    saveTransactions();
+    renderAll();
+    showToast(`Se agregó renta de ${nextMonth} (${formatMoney(amount)})`, "⚡");
+}
+
+function getNextMonthSuggestion() {
+    const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    
+    // Buscar la última renta agregada
+    const rentRows = transactions.filter(t => t.type === 'cargo_recargo' || t.type === 'cargo_normal');
+    if (rentRows.length > 0) {
+        const lastPeriod = rentRows[rentRows.length - 1].period;
+        for (let i = 0; i < months.length; i++) {
+            if (lastPeriod.toLowerCase().includes(months[i].toLowerCase())) {
+                const nextIndex = (i + 1) % 12;
+                const nextYear = nextIndex === 0 ? "2027" : "2026";
+                return `${months[nextIndex]} ${nextYear}`;
+            }
+        }
+    }
+    return "Septiembre 2026";
+}
+
+// Eliminar transacción
+function deleteTransaction(id) {
+    if (confirm("¿Estás seguro de eliminar este registro del historial?")) {
+        transactions = transactions.filter(t => t.id !== id);
+        saveTransactions();
+        renderAll();
+        showToast("Registro eliminado", "🗑️");
+    }
+}
+
+// Eliminar ítem de mantenimiento
+function deleteMaintenanceItem(id) {
+    if (confirm("¿Eliminar este concepto de mantenimiento?")) {
+        maintenanceItems = maintenanceItems.filter(m => m.id !== id);
+        saveMaintenance();
+
+        // Actualizar el descuento consolidado en la tabla
+        let maintTx = transactions.find(t => t.type === 'descuento_mantto');
+        const totalAllMaint = maintenanceItems.reduce((acc, curr) => acc + Number(curr.cost), 0);
+        if (maintTx) {
+            maintTx.amount = -totalAllMaint;
+        }
+        saveTransactions();
+        renderAll();
+        showToast("Mantenimiento eliminado", "🗑️");
+    }
+}
+
+// Descargar CSV para Excel
+function exportLedgerCSV() {
+    let runningBalance = 0;
+    let csvContent = "Fecha/Periodo,Concepto,Tipo,Monto,Saldo Acumulado\n";
+
+    transactions.forEach(row => {
+        runningBalance += row.amount;
+        const cleanPeriod = `"${row.period.replace(/"/g, '""')}"`;
+        const cleanConcept = `"${row.concept.replace(/"/g, '""')}"`;
+        const cleanType = `"${row.type}"`;
+        csvContent += `${cleanPeriod},${cleanConcept},${cleanType},${row.amount},${runningBalance}\n`;
+    });
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Estado_De_Cuenta_Santa_Fe_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast("Reporte Excel CSV descargado", "📊");
+}
+
+// Exportar Backup JSON
+function exportBackupJSON() {
+    const backupData = {
+        transactions: transactions,
+        maintenanceItems: maintenanceItems,
+        exportDate: new Date().toISOString(),
+        version: "1.0"
+    };
+
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Respaldo_Santa_Fe_${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast("Copia de seguridad descargada", "💾");
+}
+
+// Importar Backup JSON
+function handleImportJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.transactions && Array.isArray(data.transactions)) {
+                transactions = data.transactions;
+                saveTransactions();
+            }
+            if (data.maintenanceItems && Array.isArray(data.maintenanceItems)) {
+                maintenanceItems = data.maintenanceItems;
+                saveMaintenance();
+            }
+            renderAll();
+            closeModal("modalExport");
+            showToast("¡Base de datos restaurada con éxito!", "✅");
+        } catch (err) {
+            alert("El archivo seleccionado no tiene un formato válido de respaldo.");
+        }
+    };
+    reader.readAsText(file);
+}
+
+// Restablecer a datos originales
+function confirmResetInitialData() {
+    if (confirm("¿Deseas restablecer todos los movimientos a los valores iniciales de la plantilla? Esto borrará registros nuevos no guardados en respaldo.")) {
+        transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
+        maintenanceItems = JSON.parse(JSON.stringify(INITIAL_MAINTENANCE));
+        saveTransactions();
+        saveMaintenance();
+        renderAll();
+        showToast("Valores restablecidos a los originales", "🔄");
+    }
+}
+
+// Notificaciones Toast
+function showToast(message, icon = "✅") {
+    const toast = document.getElementById("toastNotification");
+    document.getElementById("toastMessage").innerText = message;
+    document.getElementById("toastIcon").innerText = icon;
+    toast.classList.add("show");
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3200);
+}
+
+// Cerrar modales con tecla ESC o clic fuera
+window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        document.querySelectorAll(".modal-overlay.active").forEach(m => m.classList.remove("active"));
+    }
+});
+
+document.querySelectorAll(".modal-overlay").forEach(overlay => {
+    overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+            overlay.classList.remove("active");
+        }
+    });
+});
+
+// --- GOOGLE SHEETS & PWA INTEGRATION ---
+const STORAGE_KEY_SHEETS_URL = "santa_fe_sheets_url_v1";
+let sheetsApiUrl = localStorage.getItem(STORAGE_KEY_SHEETS_URL) || "";
+
+function updateSyncStatusUI() {
+    const badgeText = document.getElementById("storageStatusText");
+    const badgeIcon = document.getElementById("storageIcon");
+    const btnLabel = document.getElementById("syncBtnLabel");
+
+    if (sheetsApiUrl) {
+        badgeIcon.innerText = "☁️";
+        badgeText.innerText = "Sincronizado con Google Sheets";
+        btnLabel.innerText = "Sheets Conectado";
+    } else {
+        badgeIcon.innerText = "🟢";
+        badgeText.innerText = "Modo Local Activo";
+        btnLabel.innerText = "Google Sheets";
+    }
+}
+
+function openSyncModal() {
+    document.getElementById("sheetsApiUrl").value = sheetsApiUrl;
+    document.getElementById("modalSync").classList.add("active");
+}
+
+function saveAndTestSheetsConnection() {
+    const url = document.getElementById("sheetsApiUrl").value.trim();
+    if (!url) {
+        sheetsApiUrl = "";
+        localStorage.removeItem(STORAGE_KEY_SHEETS_URL);
+        updateSyncStatusUI();
+        showToast("Conexión desconectada. Modo local.", "ℹ️");
+        closeModal("modalSync");
+        return;
+    }
+
+    sheetsApiUrl = url;
+    localStorage.setItem(STORAGE_KEY_SHEETS_URL, url);
+    updateSyncStatusUI();
+    showToast("URL guardada. Probando conexión...", "⏳");
+    manualSyncFromSheets();
+}
+
+async function manualSyncFromSheets() {
+    if (!sheetsApiUrl) {
+        openSyncModal();
+        return;
+    }
+
+    showToast("Descargando de Google Sheets...", "⏳");
+    try {
+        const res = await fetch(sheetsApiUrl);
+        const data = await res.json();
+
+        if (data.status === "success") {
+            if (data.transactions && data.transactions.length > 0) {
+                transactions = data.transactions;
+                saveTransactions();
+            }
+            if (data.maintenanceItems && data.maintenanceItems.length > 0) {
+                maintenanceItems = data.maintenanceItems;
+                saveMaintenance();
+            }
+            renderAll();
+            closeModal("modalSync");
+            showToast("¡Datos sincronizados desde Google Sheets!", "✅");
+        } else {
+            showToast("Error en respuesta de Sheets", "⚠️");
+        }
+    } catch (err) {
+        console.error("Error sync", err);
+        showToast("No se pudo conectar a Google Sheets. Revisa la URL", "❌");
+    }
+}
+
+async function manualSyncToSheets() {
+    if (!sheetsApiUrl) {
+        showToast("Primero ingresa la URL de Google Sheets", "⚠️");
+        return;
+    }
+
+    showToast("Subiendo datos a Google Sheets...", "⏳");
+    try {
+        const payload = {
+            action: "syncAll",
+            transactions: transactions,
+            maintenanceItems: maintenanceItems
+        };
+
+        const res = await fetch(sheetsApiUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify(payload)
+        });
+
+        closeModal("modalSync");
+        showToast("¡Datos enviados a Google Sheets!", "✅");
+    } catch (err) {
+        console.error("Error post", err);
+        showToast("Error al enviar a Google Sheets", "❌");
+    }
+}
+
+// Iniciar y Registrar Service Worker
+document.addEventListener("DOMContentLoaded", () => {
+    initDatabase();
+    updateSyncStatusUI();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(() => console.log('PWA Service Worker registrado'))
+            .catch(err => console.log('SW registration error:', err));
+    }
+});
+</script>
+
+</body>
+</html>

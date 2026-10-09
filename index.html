@@ -547,6 +547,24 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .balance-summary-box.state-favor {
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95));
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 12px 36px -10px rgba(5, 150, 105, 0.25);
+        }
+
+        .balance-summary-box.state-deuda {
+            background: linear-gradient(135deg, rgba(136, 19, 55, 0.25), rgba(15, 23, 42, 0.95));
+            border-color: rgba(244, 63, 94, 0.3);
+            box-shadow: 0 12px 36px -10px rgba(244, 63, 94, 0.2);
+        }
+
+        .balance-summary-box.state-cero {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
+            border-color: rgba(56, 189, 248, 0.3);
         }
 
         .balance-summary-box .label {
@@ -555,6 +573,10 @@
             letter-spacing: 1.1px;
             color: var(--text-muted);
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .balance-summary-box .value {
@@ -569,6 +591,39 @@
         .balance-summary-box .note {
             font-size: 0.78rem;
             color: var(--text-sub);
+        }
+
+        /* Pill indicador de estado de saldo */
+        .balance-status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            margin-top: 0.35rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .balance-status-tag.tag-favor {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .balance-status-tag.tag-deuda {
+            background: rgba(244, 63, 94, 0.15);
+            color: #fda4af;
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        .balance-status-tag.tag-cero {
+            background: rgba(56, 189, 248, 0.15);
+            color: #7dd3fc;
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
         /* Forms in Modal */
@@ -1293,8 +1348,8 @@
                 <div class="kpi-sub" id="kpiMaintSub">Contrato vs Descuentos</div>
             </div>
 
-            <div class="kpi-card" style="--accent-color: var(--accent-rose);">
-                <div class="kpi-title">Saldo Pendiente Actual</div>
+            <div class="kpi-card" id="kpiSaldoCard" style="--accent-color: var(--accent-rose);">
+                <div class="kpi-title" id="kpiSaldoTitle">Saldo Pendiente Actual</div>
                 <div class="kpi-value" id="kpiSaldoPendiente" style="color: #fda4af;">$0</div>
                 <div class="kpi-sub" id="kpiSaldoSub">Al corte actual</div>
             </div>
@@ -1303,9 +1358,15 @@
         <!-- Dashboard Balance & Quick Action -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.8rem;">
             <!-- Total Balance Card -->
-            <div class="balance-summary-box">
-                <div class="label">Saldo Total a Pagar</div>
+            <div class="balance-summary-box" id="summaryBalanceCard">
+                <div class="label" id="summaryBalanceLabel">
+                    <span id="summaryBalanceIcon">⚠️</span>
+                    <span id="summaryBalanceLabelText">Saldo Pendiente por Liquidar</span>
+                </div>
                 <div class="value" id="summaryBalanceBig">$0</div>
+                <div id="summaryBalanceStatusContainer">
+                    <!-- Injected badge tag -->
+                </div>
                 <div class="note" id="summaryBalanceNote">Cargando cuentas...</div>
             </div>
 
@@ -2004,11 +2065,25 @@ function renderLedger() {
         const badgeHtml = getBadgeHtml(row.type);
         const displayPeriod = formatPeriodDisplay(row.period, row.type);
 
+        // Formateo explícito del saldo acumulado en este punto
+        let accumText = "";
+        let accumClass = "";
+        if (row.accumulated < 0) {
+            accumText = `A favor: +${formatMoney(Math.abs(row.accumulated))}`;
+            accumClass = "negative";
+        } else if (row.accumulated > 0) {
+            accumText = `Por pagar: ${formatMoney(row.accumulated)}`;
+            accumClass = "";
+        } else {
+            accumText = `Al corriente: $0`;
+            accumClass = "negative";
+        }
+
         // 1. Render para Tabla de Escritorio (Desktop)
         if (tbody) {
             const tr = document.createElement("tr");
             if (row.type === 'abono') {
-                tr.style.background = "rgba(0, 255, 136, 0.04)";
+                tr.style.background = "rgba(16, 185, 129, 0.04)";
             }
 
             tr.innerHTML = `
@@ -2016,7 +2091,7 @@ function renderLedger() {
                 <td>${row.concept}</td>
                 <td>${badgeHtml}</td>
                 <td class="${amountClass}" style="text-align: right;">${formattedAmount}</td>
-                <td class="amount ${row.accumulated > 0 ? '' : 'negative'}" style="text-align: right;">${formattedAcc}</td>
+                <td class="amount ${accumClass}" style="text-align: right;">${row.accumulated < 0 ? '+' : ''}${formattedAcc}</td>
                 <td style="text-align: center;">
                     <button class="btn-delete-mini" onclick="deleteTransaction('${row.id}')" title="Eliminar registro">✕</button>
                 </td>
@@ -2044,7 +2119,7 @@ function renderLedger() {
                 </div>
                 <div class="tx-card-concept">${row.concept}</div>
                 <div class="tx-card-footer">
-                    <div class="tx-accum-pill">Saldo: <span class="${row.accumulated > 0 ? '' : 'negative'}">${formattedAcc}</span></div>
+                    <div class="tx-accum-pill"><span class="${accumClass}">${accumText}</span></div>
                     <button class="btn-delete-mini" onclick="deleteTransaction('${row.id}')" title="Eliminar movimiento" style="padding: 4px 8px; font-size: 0.9rem;">
                         🗑️ Eliminar
                     </button>
@@ -2066,14 +2141,96 @@ function renderLedger() {
     document.getElementById("kpiMaintContrato").innerText = (balanceMaintContrato >= 0 ? "+" : "") + formatMoney(balanceMaintContrato);
     document.getElementById("kpiMaintSub").innerText = `Contrato (${formatMoney(contratoAmount)}) - Mantto (${formatMoney(manttoDescuento)})`;
 
-    document.getElementById("kpiSaldoPendiente").innerText = formatMoney(runningBalance);
-    document.getElementById("kpiSaldoSub").innerText = runningBalance > 0 ? "Saldo por liquidar" : "Cuenta al corriente / a favor";
+    // Actualizar Saldo Pendiente y Estados Condicionales (A Favor vs Deuda)
+    const kpiSaldoCard = document.getElementById("kpiSaldoCard");
+    const kpiSaldoTitle = document.getElementById("kpiSaldoTitle");
+    const kpiSaldoValue = document.getElementById("kpiSaldoPendiente");
+    const kpiSaldoSub = document.getElementById("kpiSaldoSub");
 
-    // Summary box
-    document.getElementById("summaryBalanceBig").innerText = formatMoney(runningBalance);
+    const summaryCard = document.getElementById("summaryBalanceCard");
+    const summaryLabelText = document.getElementById("summaryBalanceLabelText");
+    const summaryIcon = document.getElementById("summaryBalanceIcon");
+    const summaryValue = document.getElementById("summaryBalanceBig");
+    const summaryStatusContainer = document.getElementById("summaryBalanceStatusContainer");
+    const summaryNote = document.getElementById("summaryBalanceNote");
+
+    if (runningBalance < 0) {
+        // --- SALDO A FAVOR DEL INQUILINO (PAGÓ DE MÁS) ---
+        const favorAbs = Math.abs(runningBalance);
+
+        if (kpiSaldoCard) kpiSaldoCard.style.setProperty("--accent-color", "var(--accent-emerald)");
+        if (kpiSaldoTitle) kpiSaldoTitle.innerText = "Saldo a Favor del Inquilino";
+        if (kpiSaldoValue) {
+            kpiSaldoValue.style.color = "#34d399";
+            kpiSaldoValue.innerText = `+${formatMoney(favorAbs)}`;
+        }
+        if (kpiSaldoSub) kpiSaldoSub.innerHTML = `🟢 <strong>A favor del arrendatario</strong>`;
+
+        if (summaryCard) {
+            summaryCard.className = "balance-summary-box state-favor";
+        }
+        if (summaryIcon) summaryIcon.innerText = "🟢";
+        if (summaryLabelText) summaryLabelText.innerText = "Saldo a Favor del Inquilino";
+        if (summaryValue) {
+            summaryValue.style.color = "#34d399";
+            summaryValue.innerText = `+${formatMoney(favorAbs)}`;
+        }
+        if (summaryStatusContainer) {
+            summaryStatusContainer.innerHTML = `<span class="balance-status-tag tag-favor">✅ Depósito en exceso (+${formatMoney(favorAbs)} MXN a favor)</span>`;
+        }
+
+    } else if (runningBalance > 0) {
+        // --- DEUDA PENDIENTE POR LIQUIDAR ---
+        if (kpiSaldoCard) kpiSaldoCard.style.setProperty("--accent-color", "var(--accent-rose)");
+        if (kpiSaldoTitle) kpiSaldoTitle.innerText = "Saldo Pendiente por Pagar";
+        if (kpiSaldoValue) {
+            kpiSaldoValue.style.color = "#fda4af";
+            kpiSaldoValue.innerText = formatMoney(runningBalance);
+        }
+        if (kpiSaldoSub) kpiSaldoSub.innerHTML = `⚠️ <strong>Saldo por liquidar</strong>`;
+
+        if (summaryCard) {
+            summaryCard.className = "balance-summary-box state-deuda";
+        }
+        if (summaryIcon) summaryIcon.innerText = "⚠️";
+        if (summaryLabelText) summaryLabelText.innerText = "Saldo Total a Pagar";
+        if (summaryValue) {
+            summaryValue.style.color = "#ffffff";
+            summaryValue.innerText = formatMoney(runningBalance);
+        }
+        if (summaryStatusContainer) {
+            summaryStatusContainer.innerHTML = `<span class="balance-status-tag tag-deuda">⏳ Pendiente de pago (${formatMoney(runningBalance)} MXN)</span>`;
+        }
+
+    } else {
+        // --- CUENTA EXACTA AL DÍA ($0) ---
+        if (kpiSaldoCard) kpiSaldoCard.style.setProperty("--accent-color", "var(--accent-cyan)");
+        if (kpiSaldoTitle) kpiSaldoTitle.innerText = "Estado de Cuenta";
+        if (kpiSaldoValue) {
+            kpiSaldoValue.style.color = "#7dd3fc";
+            kpiSaldoValue.innerText = "$0";
+        }
+        if (kpiSaldoSub) kpiSaldoSub.innerHTML = `✨ <strong>Completamente al corriente</strong>`;
+
+        if (summaryCard) {
+            summaryCard.className = "balance-summary-box state-cero";
+        }
+        if (summaryIcon) summaryIcon.innerText = "✨";
+        if (summaryLabelText) summaryLabelText.innerText = "Cuenta al Corriente";
+        if (summaryValue) {
+            summaryValue.style.color = "#7dd3fc";
+            summaryValue.innerText = "$0";
+        }
+        if (summaryStatusContainer) {
+            summaryStatusContainer.innerHTML = `<span class="balance-status-tag tag-cero">🎉 Sin saldo pendiente ($0 MXN)</span>`;
+        }
+    }
+
     const lastTx = transactions[transactions.length - 1];
-    const lastDateText = lastTx ? lastTx.period : "Actualizado";
-    document.getElementById("summaryBalanceNote").innerText = `Incluye rentas acumuladas, cargos, recargos y abonos hasta ${lastDateText}.`;
+    const lastDateText = lastTx ? formatPeriodDisplay(lastTx.period, lastTx.type) : "Actualizado";
+    if (summaryNote) {
+        summaryNote.innerText = `Cálculo automático de rentas, cargos y abonos registrados hasta ${lastDateText}.`;
+    }
 }
 
 // Renderizado de la lista de mantenimientos

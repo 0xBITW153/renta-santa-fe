@@ -19,12 +19,29 @@ function doGet(e) {
     var maintData = sheetMaint.getDataRange().getValues();
 
     var transactions = [];
+    var meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
     for (var i = 1; i < txData.length; i++) {
       if (!txData[i][0]) continue;
+
+      var rawDate = txData[i][1];
+      var rawPeriod = txData[i][2];
+      var strDate = rawDate instanceof Date ? Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(rawDate);
+      var strPeriod = String(rawPeriod);
+
+      if (rawPeriod instanceof Date) {
+        strPeriod = meses[rawPeriod.getMonth()] + " " + rawPeriod.getFullYear();
+      } else if (strPeriod.indexOf("GMT") !== -1) {
+        var d = new Date(strPeriod);
+        if (!isNaN(d.getTime())) {
+          strPeriod = meses[d.getMonth()] + " " + d.getFullYear();
+        }
+      }
+
       transactions.push({
         id: String(txData[i][0]),
-        date: String(txData[i][1]),
-        period: String(txData[i][2]),
+        date: strDate,
+        period: strPeriod,
         concept: String(txData[i][3]),
         type: String(txData[i][4]),
         amount: Number(txData[i][5])

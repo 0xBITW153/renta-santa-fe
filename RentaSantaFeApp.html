@@ -1749,7 +1749,10 @@ function initDatabase() {
         const savedMaint = localStorage.getItem(STORAGE_KEY_MAINT);
 
         if (savedTx) {
-            transactions = JSON.parse(savedTx);
+            transactions = JSON.parse(savedTx).map(t => ({
+                ...t,
+                period: formatPeriodDisplay(t.period, t.type)
+            }));
         } else {
             transactions = JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS));
             saveTransactions();
@@ -1798,6 +1801,47 @@ function formatMoney(amount, showSign = false) {
         return amount >= 0 ? `+${formatted}` : `-${formatted}`;
     }
     return formatted;
+}
+
+// Formateador amigable de periodos y fechas (corrige textos crudos como "Mon Jun 01 2026 00:00:00 GMT-0600")
+function formatPeriodDisplay(rawPeriod, type = '') {
+    if (!rawPeriod) return "Sin periodo";
+    const str = String(rawPeriod).trim();
+
+    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+    // 1. Si es formato de fecha Date.toString() ej. "Mon Jun 01 2026 00:00:00 GMT-0600..."
+    if (str.includes("GMT") || /^[A-Za-z]{3}\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{4}/.test(str)) {
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) {
+            // Si es un cargo de renta o viene con día 1, mostramos "Mes Año" (ej: "Junio 2026")
+            if (type.startsWith('cargo_') || d.getDate() === 1) {
+                return `${meses[d.getMonth()]} ${d.getFullYear()}`;
+            }
+            // Si es un abono u otra fecha específica, mostramos fecha legible ej: "13/Mar/2026"
+            const day = String(d.getDate()).padStart(2, '0');
+            const mesCorto = meses[d.getMonth()].substring(0, 3);
+            return `${day}/${mesCorto}/${d.getFullYear()}`;
+        }
+    }
+
+    // 2. Si viene como formato ISO YYYY-MM-DD o YYYY-MM
+    const isoMatch = str.match(/^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?/);
+    if (isoMatch) {
+        const year = isoMatch[1];
+        const monthIdx = parseInt(isoMatch[2], 10) - 1;
+        const day = isoMatch[3];
+        if (monthIdx >= 0 && monthIdx < 12) {
+            if (!day || day === "01" || type.startsWith('cargo_')) {
+                return `${meses[monthIdx]} ${year}`;
+            }
+            const mesCorto = meses[monthIdx].substring(0, 3);
+            return `${day}/${mesCorto}/${year}`;
+        }
+    }
+
+    // 3. Si ya es un texto limpio como "Junio 2026", "ABONO 1", etc.
+    return str;
 }
 
 // Helpers de insignias (badges)
@@ -1958,6 +2002,7 @@ function renderLedger() {
         const formattedAmount = formatMoney(row.amount, true);
         const formattedAcc = formatMoney(row.accumulated);
         const badgeHtml = getBadgeHtml(row.type);
+        const displayPeriod = formatPeriodDisplay(row.period, row.type);
 
         // 1. Render para Tabla de Escritorio (Desktop)
         if (tbody) {
@@ -1967,7 +2012,7 @@ function renderLedger() {
             }
 
             tr.innerHTML = `
-                <td><strong>${row.period}</strong></td>
+                <td><strong>${displayPeriod}</strong></td>
                 <td>${row.concept}</td>
                 <td>${badgeHtml}</td>
                 <td class="${amountClass}" style="text-align: right;">${formattedAmount}</td>
@@ -1992,7 +2037,7 @@ function renderLedger() {
             card.innerHTML = `
                 <div class="tx-card-header">
                     <div class="tx-card-period">
-                        <span>${row.period}</span>
+                        <span>${displayPeriod}</span>
                         ${badgeHtml}
                     </div>
                     <div class="tx-card-amount ${amountClass}">${formattedAmount}</div>
@@ -2478,7 +2523,10 @@ async function manualSyncFromSheets() {
 
         if (data.status === "success") {
             if (data.transactions && data.transactions.length > 0) {
-                transactions = data.transactions;
+                transactions = data.transactions.map(t => ({
+                    ...t,
+                    period: formatPeriodDisplay(t.period, t.type)
+                }));
                 saveTransactions();
             }
             if (data.maintenanceItems && data.maintenanceItems.length > 0) {

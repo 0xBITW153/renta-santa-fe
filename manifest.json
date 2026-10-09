@@ -1,24 +1,38 @@
 {
   "name": "Renta Santa Fe",
   "short_name": "SantaFeApp",
+  "id": "/renta-santa-fe/",
   "description": "Control de Pagos, Recargos y Mantenimiento de Renta Santa Fe",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#090d16",
   "theme_color": "#00f2fe",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

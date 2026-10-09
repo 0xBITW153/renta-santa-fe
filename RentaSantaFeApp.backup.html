@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de Cuenta - Renta Santa Fe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: rgba(18, 26, 43, 0.7);
+            --bg-card-hover: rgba(26, 38, 63, 0.85);
+            --border-glow: rgba(0, 242, 254, 0.25);
+            --neon-cyan: #00f2fe;
+            --neon-blue: #4facfe;
+            --neon-purple: #7f00ff;
+            --neon-pink: #ff007f;
+            --neon-green: #00ff88;
+            --neon-amber: #ffab00;
+            --text-main: #f0f4f8;
+            --text-muted: #8a99ad;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(127, 0, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(0, 242, 254, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(255, 0, 127, 0.05) 0%, transparent 60%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: var(--glass-border);
+            position: relative;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), transparent);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .brand h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 30%, var(--neon-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
+        }
+
+        .brand p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.3rem;
+        }
+
+        .rent-info-badge {
+            background: rgba(18, 26, 43, 0.8);
+            border: 1px solid var(--neon-purple);
+            box-shadow: 0 0 15px rgba(127, 0, 255, 0.25);
+            padding: 0.8rem 1.4rem;
+            border-radius: 12px;
+            text-align: right;
+            backdrop-filter: blur(10px);
+        }
+
+        .rent-info-badge .title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .rent-info-badge .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            background: var(--bg-card-hover);
+            border-color: rgba(0, 242, 254, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 242, 254, 0.15);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-color, var(--neon-cyan));
+            box-shadow: 0 0 12px var(--accent-color, var(--neon-cyan));
+        }
+
+        .kpi-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 0.6rem;
+        }
+
+        .kpi-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.4rem;
+        }
+
+        .kpi-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* Main Dashboard Sections */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.8rem;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: var(--glass-border);
+            border-radius: 20px;
+            padding: 1.8rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 1.8rem;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #fff;
+        }
+
+        .panel-title span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        /* Table Design */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        td {
+            padding: 1rem;
+            font-size: 0.92rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #d1d5db;
+        }
+
+        tr:hover td {
+            background: rgba(0, 242, 254, 0.03);
+            color: #fff;
+        }
+
+        .amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .amount.negative {
+            color: var(--neon-green);
+        }
+
+        .amount.positive {
+            color: #ffffff;
+        }
+
+        .amount.highlight {
+            color: var(--neon-pink);
+            font-weight: 700;
+        }
+
+        /* Badges & Pills */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-penalty {
+            background: rgba(255, 0, 127, 0.15);
+            color: var(--neon-pink);
+            border: 1px solid rgba(255, 0, 127, 0.3);
+        }
+
+        .badge-payment {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .badge-discount {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+
+        .badge-contract {
+            background: rgba(127, 0, 255, 0.15);
+            color: #b57cff;
+            border: 1px solid rgba(127, 0, 255, 0.3);
+        }
+
+        /* Maintenance Items Cards */
+        .maint-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+        }
+
+        .maint-info .name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #fff;
+        }
+
+        .maint-info .tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .maint-cost {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--neon-cyan);
+        }
+
+        /* Rules Box */
+        .rules-card {
+            background: linear-gradient(135deg, rgba(127, 0, 255, 0.1), rgba(0, 242, 254, 0.05));
+            border: 1px solid rgba(127, 0, 255, 0.3);
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .rules-card h3 {
+            font-size: 0.95rem;
+            color: var(--neon-cyan);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .rules-list {
+            list-style: none;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .rules-list li::before {
+            content: '▹ ';
+            color: var(--neon-pink);
+        }
+
+        /* Summary Footer Balance */
+        .balance-summary-box {
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.15), rgba(127, 0, 255, 0.2));
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .balance-summary-box .label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ffd0e5;
+        }
+
+        .balance-summary-box .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 0 15px var(--neon-pink);
+            margin: 0.4rem 0;
+        }
+
+        .balance-summary-box .note {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="brand">
+            <h1>RENTA SANTA FE</h1>
+            <p>Dashboard Control de Pagos, Recargos y Mantenimiento</p>
+        </div>
+        <div class="rent-info-badge">
+            <div class="title">Renta Mensual Base</div>
+            <div class="value">$8,500 MXN</div>
+        </div>
+    </header>
+
+    <!-- Rules Banner -->
+    <div class="rules-card">
+        <h3>⚡ Condiciones y Reglas de Pago</h3>
+        <ul class="rules-list">
+            <li><strong>Periodo Estándar:</strong> Pago dentro de los primeros 10 días de cada mes.</li>
+            <li><strong>Recargo por Atraso:</strong> +10% sobre la renta base ($850 MXN), aplicando un total mensual de <strong>$9,350 MXN</strong>.</li>
+        </ul>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid">
+        <div class="kpi-card" style="--accent-color: var(--neon-cyan);">
+            <div class="kpi-title">Total Cargos por Renta (10 Meses)</div>
+            <div class="kpi-value">$93,500</div>
+            <div class="kpi-sub">Nov 2025 - Ago 2026 ($9,350 c/u)</div>
+        </div>
+
+        <div class="kpi-card" style="--accent-color: var(--neon-green);">
+            <div class="kpi-title">Total Abonos Realizados</div>
+            <div class="kpi-value">$84,000</div>
+            <div class="kpi-sub">5 Pagos registrados a la fecha</div>
+        </div>
+
+        <div class="kpi-card" style="--accent-color: var(--neon-purple);">
+            <div class="kpi-title">Mantenimiento + Contrato</div>
+            <div class="kpi-value">+$1,201</div>
+            <div class="kpi-sub">Contrato ($8,500) - Mantto ($7,299)</div>
+        </div>
+
+        <div class="kpi-card" style="--accent-color: var(--neon-pink);">
+            <div class="kpi-title">Saldo Pendiente Actual</div>
+            <div class="kpi-value" style="color: var(--neon-pink); text-shadow: 0 0 10px rgba(255,0,127,0.4);">$10,701</div>
+            <div class="kpi-sub">Actualizado con abonos del 10/Ago/2026</div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+        <!-- Main Ledger Table -->
+        <div class="left-column">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span></span> Historial Consolidado de Cuentas</div>
+                    <span class="badge badge-discount">2025 - 2026</span>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha / Periodo</th>
+                                <th>Concepto</th>
+                                <th>Tipo</th>
+                                <th style="text-align: right;">Monto</th>
+                                <th style="text-align: right;">Saldo Acumulado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Period 1 -->
+                            <tr>
+                                <td>Noviembre</td>
+                                <td>Renta base ($8,500) + Recargo ($850)</td>
+                                <td><span class="badge badge-penalty">Atraso 10%</span></td>
+                                <td class="amount positive" style="text-align: right;">+$9,350</td>
+                                <td class="amount" style="text-align: right;">$9,350</td>
+                            </tr>
+                            <tr>
+                                <td>Diciembre</td>
+                                <td>Renta base ($8,500) + Recargo ($850)</td>
+                                <td><span class="badge badge-penalty">Atraso 10%</span></td>
+                                <td class="amount positive" style="text-align: right;">+$9,350</td>
+                                <td class="amount" style="text-align: right;">$18,700</td>
+                            </tr>
+                            <tr>
+                                <td>Enero</td>
+                                <td>Renta base ($8,500) + Recargo ($850)</td>
+                                <td><span class="badge badge-penalty">Atraso 10%</span></td>
+                                <td class="amount positive" style="text-align: right;">+$9,350</td>
+                                <td class="amount" style="text-align: right;">$28,050</td>
+                            </tr>
+                            <tr>
+                                <td>Mantenimiento</td>
+                                <td>Descuento por reparaciones</td>
+                                <td><span class="badge badge-discount">Abono Mantto</span></td>
+                                <td class="amount negative" style="text-align: right;">-$7,299</td>
+                                <td class="amount" style="text-align: right;">$20,751</td>
+                            </tr>
+                            <tr>
+                                <td>Contrato</td>
+                                <td>Cargo por contrato de arrendamiento</td>
+                                <td><span class="badge badge-contract">Cargo Contrato</span></td>
+                                <td class="amount positive" style="text-align: right;">+$8,500</td>
+                                <td class="amount" style="text-align: right;">$29,251</td>
+                            </tr>
+                            <tr style="background: rgba(0, 255, 136, 0.04);">
+                                <td><strong>ABONO 1</strong></td>
+                                <td>Pago registrado en cuenta</td>
+                                <td><span class="badge badge-payment">Abono Pago</span></td>
+                                <td class="amount negative" style="text-align: right;">-$18,000</td>
+                                <td class="amount highlight" style="text-align: right;">$11,251</td>
+                            </tr>
+
+                            <!-- Period 2 -->
+                            <tr>
+                                <td>Febrero</td>
+                                <td>Renta base ($8,500) + Recargo ($850)</td>
+                                <td><span class="badge badge-penalty">Atraso 10%</span></td>
+                                <td class="amount positive" style="text-align: right;">+$9,350</td>
+                                <td class="amount" style="text-align: right;">$20,601</td>
+                            </tr>
+                            <tr>
+                                <td>Marzo</td>
+                                <td>Renta base ($8,500) + Recargo ($850)</td>
+                                <td><span class="badge badge-penalty">Atraso 10%</span></td>
+                                <td class="amount positive" style="text-align: right;">+$9,350</td>
+                                <td class="amount" style="text-align: right;">$29,951</td>
+                            </tr>
+                            <tr style="background: rgba(0, 255, 136, 0.04);">
+                                <td><strong>ABONO 2 (13/Mar/26)</strong></td>
+                                <td>Pago registrado en cuenta</td>
+                                <td><span class="badge badge-payment">Abono Pago</span></td>
+                                <td class="amount negative" style="text-align: right;">-$18,000</td>
+                                <td class="amount highlight" style="text-align: right;">$11,951</td>
+                            </tr>
+
+                            <!-- Period 3 -->
+                            <tr>
+                                <td>Abril</td>
+                                <td>Renta base ($8,500) + Recargo ($850)</td>
+                                <td><span class="badge badge-penalty">Atraso 10%</span></td>
+                                <td class="amount positive" style="text-align: right;">+$9,350</td>
+                                <td class="amount" style="text-align: right;">$21,301</td>
+                            </tr>
+                            <tr style="background: rgba(0, 255, 136, 0.04);">
+                                <td><strong>ABONO 3 (11/May/26)</strong></td>
+                                <td>Pago registrado en cuenta</td>
+                                <td><span class="badge badge-payment">Abono Pago</span></td>
+                                <td class="amount negative" style="text-align: right;">-$20,000</td>
+                                <td class="amount highlight" style="text-align: right;">$1,301</td>
+                            </tr>
+
+                            <!-- Period 4 -->
+                            <tr>
+                                <td>Mayo</td>
+                                <td>Renta base ($8,500) + Recargo ($850)</td>
+                                <td><span class="badge badge-penalty">Atraso 10%</span></td>
+                                <td class="amount positive" style="text-align: right;">+$9,350</td>
+                                <td class="amount" style="text-align: right;">$10,651</td>
+                            </tr>
+                            <tr>
+                                <td>Junio</td>
+                                <td>Renta base ($8,500) + Recargo ($850)</td>
+                                <td><span class="badge badge-penalty">Atraso 10%</span></td>
+                                <td class="amount positive" style="text-align: right;">+$9,350</td>
+                                <td class="amount" style="text-align: right;">$20,001</td>
+                            </tr>
+                            <tr>
+                                <td>Julio</td>
+                                <td>Renta base ($8,500) + Recargo ($850)</td>
+                                <td><span class="badge badge-penalty">Atraso 10%</span></td>
+                                <td class="amount positive" style="text-align: right;">+$9,350</td>
+                                <td class="amount" style="text-align: right;">$29,351</td>
+                            </tr>
+                            <tr>
+                                <td>Agosto</td>
+                                <td>Renta base ($8,500) + Recargo ($850)</td>
+                                <td><span class="badge badge-penalty">Atraso 10%</span></td>
+                                <td class="amount positive" style="text-align: right;">+$9,350</td>
+                                <td class="amount" style="text-align: right;">$38,701</td>
+                            </tr>
+                            <tr style="background: rgba(0, 255, 136, 0.04);">
+                                <td><strong>ABONO 4 (28/Jul/26)</strong></td>
+                                <td>Pago registrado en cuenta</td>
+                                <td><span class="badge badge-payment">Abono Pago</span></td>
+                                <td class="amount negative" style="text-align: right;">-$14,000</td>
+                                <td class="amount" style="text-align: right;">$24,701</td>
+                            </tr>
+                            <tr style="background: rgba(0, 255, 136, 0.04);">
+                                <td><strong>ABONO 5 (10/Ago/26)</strong></td>
+                                <td>Pago registrado en cuenta</td>
+                                <td><span class="badge badge-payment">Abono Pago</span></td>
+                                <td class="amount negative" style="text-align: right;">-$5,000</td>
+                                <td class="amount" style="text-align: right;">$19,701</td>
+                            </tr>
+                            <tr style="background: rgba(0, 255, 136, 0.04);">
+                                <td><strong>ABONO 6 (10/Ago/26)</strong></td>
+                                <td>Pago registrado en cuenta</td>
+                                <td><span class="badge badge-payment">Abono Pago</span></td>
+                                <td class="amount negative" style="text-align: right;">-$9,000</td>
+                                <td class="amount highlight" style="text-align: right; color: var(--neon-pink); font-size: 1.1rem;">$10,701</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side Widgets -->
+        <div class="right-column">
+            <!-- Maintenance Breakdown -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span></span> Descuentos por Mantenimiento</div>
+                </div>
+                <div class="maint-item">
+                    <div class="maint-info">
+                        <div class="name">Puerta Dañada</div>
+                        <div class="tag">Reparación / Mantenimiento</div>
+                    </div>
+                    <div class="maint-cost">$3,300</div>
+                </div>
+                <div class="maint-item">
+                    <div class="maint-info">
+                        <div class="name">Aire Acondicionado</div>
+                        <div class="tag">Reparación / Servicio</div>
+                    </div>
+                    <div class="maint-cost">$3,999</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.8rem 0; border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 0.5rem;">
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Total Descontado:</span>
+                    <span style="font-family: 'JetBrains Mono'; font-weight: 700; color: var(--neon-cyan);">$7,299 MXN</span>
+                </div>
+            </div>
+
+            <!-- Total Balance Card -->
+            <div class="balance-summary-box">
+                <div class="label">Saldo Total a Pagar</div>
+                <div class="value">$10,701</div>
+                <div class="note">Incluye rentas acumuladas hasta Agosto, recargos del 10% y abonos registrados al 10/AGO/2026.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
